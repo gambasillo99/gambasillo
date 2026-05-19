@@ -108,7 +108,12 @@ export const apiClient = {
 
     const json = await res.json();
     if (!res.ok) throw new Error(json.error ?? "Error al subir archivo");
-    return json as { url: string; publicId: string; type: string };
+    return json as {
+      url: string;
+      publicId: string;
+      type: string;
+      id: string;
+    };
   },
 
   seed: () => api<{ ok: boolean }>("/api/seed", { method: "POST" }),

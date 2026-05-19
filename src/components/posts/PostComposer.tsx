@@ -57,7 +57,7 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
           setMedia((prev) => [
             ...prev,
             {
-              id: uploaded.id ?? generateId(),
+              id: uploaded.id || generateId(),
               type: mediaType,
               url: uploaded.url,
             },

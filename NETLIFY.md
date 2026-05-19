@@ -139,6 +139,19 @@ npx netlify deploy --prod
 
 ---
 
+## Checklist antes de cada deploy
+
+En CMD (opcional, para comprobar en local):
+
+```cmd
+cd /d c:\Users\Becario\Desktop\Proyectos\OTro\X
+npm run build
+```
+
+Si pasa sin errores, el deploy en Netlify debería funcionar.
+
+---
+
 ## Problemas frecuentes
 
 | Problema | Solución |
