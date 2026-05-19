@@ -4,9 +4,14 @@ import type {
   CommentWithAuthor,
   MediaItem,
 } from "@/types";
-import type { Database, UserRow } from "@/lib/supabase/types";
+import type { UserRow } from "@/lib/supabase/types";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { mapUser, mapPost, mapComment } from "@/lib/supabase/mappers";
+import {
+  mapUser,
+  mapPost,
+  mapComment,
+  serializeMedia,
+} from "@/lib/supabase/mappers";
 import { hashPassword, normalizeUsername } from "@/lib/utils";
 import { SEED_USERS, SEED_PASSWORD } from "./seed";
 
@@ -193,7 +198,7 @@ export async function supabaseCreatePost(
     .insert({
       user_id: userId,
       content,
-      media: media as Database["public"]["Tables"]["posts"]["Insert"]["media"],
+      media: serializeMedia(media),
     })
     .select("*")
     .single();
@@ -522,13 +527,13 @@ export async function supabaseSeedIfEmpty(): Promise<void> {
     {
       user_id: marina,
       content: "nuevo drop visual incoming... stay tuned",
-      media: [
+      media: serializeMedia([
         {
           id: "media-1",
           type: "image",
           url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
         },
-      ] as Database["public"]["Tables"]["posts"]["Insert"]["media"],
+      ]),
       likes_count: 22,
       reposts_count: 6,
       comments_count: 2,

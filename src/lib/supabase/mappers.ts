@@ -1,9 +1,14 @@
 import type { User, Post, MediaItem, Comment } from "@/types";
-import type { Database } from "./types";
+import type { Database, Json } from "./types";
 
 type DbUser = Database["public"]["Tables"]["users"]["Row"];
 type DbPost = Database["public"]["Tables"]["posts"]["Row"];
 type DbComment = Database["public"]["Tables"]["comments"]["Row"];
+
+/** Guarda multimedia en columna jsonb de Supabase */
+export function serializeMedia(media: MediaItem[]): Json {
+  return JSON.parse(JSON.stringify(media)) as Json;
+}
 
 export function mapUser(row: DbUser): User {
   return {
@@ -18,8 +23,13 @@ export function mapUser(row: DbUser): User {
   };
 }
 
+export function parseMedia(value: Json | null | undefined): MediaItem[] {
+  if (!value || !Array.isArray(value)) return [];
+  return value as unknown as MediaItem[];
+}
+
 export function mapPost(row: DbPost): Post {
-  const media = (Array.isArray(row.media) ? row.media : []) as MediaItem[];
+  const media = parseMedia(row.media);
   return {
     id: row.id,
     userId: row.user_id,
