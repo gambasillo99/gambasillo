@@ -15,7 +15,7 @@ interface PostComposerProps {
   autoFocus?: boolean;
 }
 
-const useCloudinary =
+const hasCloudinaryUpload =
   typeof window !== "undefined" &&
   Boolean(process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
 
@@ -52,7 +52,7 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
     setUploading(true);
     try {
       for (const file of Array.from(files)) {
-        if (useCloudinary) {
+        if (hasCloudinaryUpload) {
           const uploaded = await apiClient.upload(file, mediaType);
           setMedia((prev) => [
             ...prev,

@@ -18,8 +18,7 @@ import {
   getUserById,
 } from "@/lib/data/store";
 import { apiClient } from "@/lib/api/client";
-
-const useRemote = () => Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
+import { isRemoteBackend } from "@/lib/config";
 
 interface AuthContextValue {
   user: User | null;
@@ -41,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function init() {
       await seedDatabaseIfNeeded();
 
-      if (useRemote()) {
+      if (isRemoteBackend()) {
         try {
           const { user: remoteUser } = await apiClient.auth.me();
           setUser(remoteUser);
@@ -65,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await loginUser(input.username, input.password);
       if ("error" in result) return result.error;
       setUser(result.user);
-      if (!useRemote()) {
+      if (!isRemoteBackend()) {
         setItem(KEYS.session, { userId: result.user.id });
       }
       router.push("/feed");
@@ -83,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       );
       if ("error" in result) return result.error;
       setUser(result.user);
-      if (!useRemote()) {
+      if (!isRemoteBackend()) {
         setItem(KEYS.session, { userId: result.user.id });
       }
       router.push("/feed");
@@ -93,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    if (useRemote()) {
+    if (isRemoteBackend()) {
       await apiClient.auth.logout().catch(() => {});
     }
     setUser(null);
@@ -102,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   const refreshUser = useCallback(async () => {
-    if (useRemote()) {
+    if (isRemoteBackend()) {
       const { user: remoteUser } = await apiClient.auth.me();
       setUser(remoteUser);
       return;

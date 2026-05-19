@@ -5,17 +5,11 @@ import type {
   MediaItem,
 } from "@/types";
 import { apiClient } from "@/lib/api/client";
+import { isRemoteBackend } from "@/lib/config";
 import * as local from "./local-store";
 
-function useApi(): boolean {
-  return Boolean(
-    typeof window !== "undefined" &&
-      process.env.NEXT_PUBLIC_SUPABASE_URL
-  );
-}
-
 export async function seedDatabaseIfNeeded(): Promise<void> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     await apiClient.seed();
     return;
   }
@@ -23,7 +17,7 @@ export async function seedDatabaseIfNeeded(): Promise<void> {
 }
 
 export async function getUserById(id: string): Promise<User | null> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     try {
       const { user } = await apiClient.auth.me();
       if (user?.id === id) return user;
@@ -38,7 +32,7 @@ export async function getUserById(id: string): Promise<User | null> {
 export async function getUserByUsername(
   username: string
 ): Promise<User | null> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     try {
       const { user } = await apiClient.users.get(username);
       return user;
@@ -54,7 +48,7 @@ export async function registerUser(
   password: string,
   displayName?: string
 ): Promise<{ user: User } | { error: string }> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     try {
       const { user } = await apiClient.auth.register({
         username,
@@ -73,7 +67,7 @@ export async function loginUser(
   username: string,
   password: string
 ): Promise<{ user: User } | { error: string }> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     try {
       const { user } = await apiClient.auth.login({ username, password });
       return { user };
@@ -89,7 +83,7 @@ export async function getFeedPosts(
   pageSize: number,
   currentUserId?: string
 ): Promise<PostWithAuthor[]> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { posts } = await apiClient.posts.feed(page, pageSize);
     return posts;
   }
@@ -102,7 +96,7 @@ export async function getUserPosts(
   pageSize: number,
   currentUserId?: string
 ): Promise<PostWithAuthor[]> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { posts } = await apiClient.posts.byUser(userId, page, pageSize);
     return posts;
   }
@@ -113,7 +107,7 @@ export async function getPostById(
   id: string,
   currentUserId?: string
 ): Promise<PostWithAuthor | null> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     try {
       const { post } = await apiClient.posts.get(id);
       return post;
@@ -129,7 +123,7 @@ export async function createPost(
   content: string,
   media: MediaItem[] = []
 ): Promise<PostWithAuthor> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { post } = await apiClient.posts.create(content, media);
     return post;
   }
@@ -140,7 +134,7 @@ export async function toggleLike(
   postId: string,
   userId: string
 ): Promise<PostWithAuthor | null> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { post } = await apiClient.posts.like(postId);
     return post;
   }
@@ -151,7 +145,7 @@ export async function toggleRepost(
   postId: string,
   userId: string
 ): Promise<PostWithAuthor | null> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { post } = await apiClient.posts.repost(postId);
     return post;
   }
@@ -162,7 +156,7 @@ export async function getPostComments(
   postId: string,
   currentUserId?: string
 ): Promise<CommentWithAuthor[]> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { comments } = await apiClient.comments.list(postId);
     return comments;
   }
@@ -175,7 +169,7 @@ export async function addComment(
   content: string,
   parentId: string | null = null
 ): Promise<CommentWithAuthor | null> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { comment } = await apiClient.comments.create(
       postId,
       content,
@@ -190,7 +184,7 @@ export async function toggleFollow(
   followerId: string,
   followingId: string
 ): Promise<{ following: boolean; followersCount: number } | null> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     return apiClient.users.follow(followingId);
   }
   return local.toggleFollow(followerId, followingId);
@@ -200,7 +194,7 @@ export async function isFollowing(
   followerId: string,
   followingId: string
 ): Promise<boolean> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { following } = await apiClient.users.isFollowing(followingId);
     return following;
   }
@@ -208,7 +202,7 @@ export async function isFollowing(
 }
 
 export async function getActiveMembers(): Promise<User[]> {
-  if (useApi()) {
+  if (isRemoteBackend()) {
     const { users } = await apiClient.users.active();
     return users;
   }
