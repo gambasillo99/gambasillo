@@ -17,13 +17,7 @@ npm install
 npm run dev
 ```
 
-Sin variables de entorno, la app usa `localStorage` con datos demo.
-
-| Usuario | Contraseña |
-|---------|------------|
-| @marina | gambas123 |
-| @pixel  | gambas123 |
-| @nexus  | gambas123 |
+Sin variables de entorno, la app usa `localStorage` vacío: crea tu cuenta y empieza a gambear.
 
 ---
 
@@ -49,19 +43,13 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 SESSION_SECRET=genera-un-secreto-aleatorio-largo
 ```
 
-### 4. Seed de datos demo
+### 4. Arrancar
 
 ```bash
 npm run dev
 ```
 
-Al iniciar sesión por primera vez, el cliente llama `/api/seed` automáticamente si la base está vacía.
-
-O manualmente:
-
-```bash
-curl -X POST http://localhost:3000/api/seed
-```
+Regístrate con tu @usuario y contraseña. La base empieza vacía (sin datos demo).
 
 ---
 

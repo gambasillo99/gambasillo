@@ -15,6 +15,7 @@ import {
   toggleRepost,
 } from "@/lib/data/store";
 import type { PostWithAuthor, CommentWithAuthor } from "@/types";
+import { copy } from "@/lib/gambas-copy";
 
 export default function PostPage({
   params,
@@ -88,12 +89,12 @@ export default function PostPage({
   if (!post) {
     return (
       <div className="p-8 text-center">
-        <p className="text-gambas-muted">Post no encontrado</p>
+        <p className="text-gambas-muted">Gamba no encontrada</p>
         <Link
           href="/feed"
           className="text-gambas-accent text-sm mt-2 inline-block hover:underline"
         >
-          Volver al feed
+          Volver al gambasillín
         </Link>
       </div>
     );
@@ -108,7 +109,7 @@ export default function PostPage({
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-lg font-bold">Post</h1>
+        <h1 className="text-lg font-bold">{copy.gambaDetail}</h1>
       </header>
 
       <PostCard
@@ -123,7 +124,7 @@ export default function PostPage({
           <input
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Escribe un comentario..."
+            placeholder={copy.commentPlaceholder}
             className="flex-1 bg-gambas-surface border border-gambas-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gambas-accent/40"
           />
           <button
@@ -131,7 +132,7 @@ export default function PostPage({
             disabled={!commentText.trim()}
             className="px-4 py-2 rounded-xl bg-gambas-accent text-white text-sm font-semibold disabled:opacity-50 hover:opacity-90 transition-opacity"
           >
-            Enviar
+            {copy.enviarChirla}
           </button>
         </form>
 

@@ -8,14 +8,6 @@ import { apiClient } from "@/lib/api/client";
 import { isRemoteBackend } from "@/lib/config";
 import * as local from "./local-store";
 
-export async function seedDatabaseIfNeeded(): Promise<void> {
-  if (isRemoteBackend()) {
-    await apiClient.seed();
-    return;
-  }
-  return local.seedDatabaseIfNeeded();
-}
-
 export async function getUserById(id: string): Promise<User | null> {
   if (isRemoteBackend()) {
     try {

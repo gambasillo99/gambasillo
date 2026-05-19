@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth/context";
 import { generateId } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
 import { MediaPreview } from "./MediaPreview";
+import { copy } from "@/lib/gambas-copy";
 
 interface PostComposerProps {
   onPost: (content: string, media: MediaItem[]) => void | Promise<void>;
@@ -100,7 +101,7 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="¿Qué está pasando en el gambasillo?"
+            placeholder={copy.composePlaceholder}
             autoFocus={autoFocus}
             rows={3}
             className="w-full bg-transparent text-gambas-text placeholder:text-gambas-muted/60 resize-none focus:outline-none text-[15px] leading-relaxed"
@@ -160,7 +161,7 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
               )}
             </div>
             <Button size="sm" onClick={handleSubmit} disabled={!canPost}>
-              {posting ? "Publicando..." : "Publicar"}
+              {posting ? copy.gambearing : copy.gambear}
             </Button>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { formatUsername } from "@/lib/utils";
 import { toggleFollow, isFollowing } from "@/lib/data/store";
 import { useAuth } from "@/lib/auth/context";
+import { copy } from "@/lib/gambas-copy";
 
 interface ProfileHeaderProps {
   profile: User;
@@ -66,8 +67,8 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               {followLoading
                 ? "..."
                 : following
-                  ? "Siguiendo"
-                  : "Seguir"}
+                  ? copy.followingBtn
+                  : copy.follow}
             </Button>
           )}
         </div>
@@ -84,11 +85,11 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               <strong className="text-gambas-text">
                 {profile.followingCount}
               </strong>{" "}
-              <span className="text-gambas-muted">siguiendo</span>
+              <span className="text-gambas-muted">{copy.following}</span>
             </span>
             <span>
               <strong className="text-gambas-text">{followersCount}</strong>{" "}
-              <span className="text-gambas-muted">seguidores</span>
+              <span className="text-gambas-muted">{copy.followers}</span>
             </span>
           </div>
         </div>

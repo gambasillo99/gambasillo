@@ -11,8 +11,6 @@ import type {
 } from "@/types";
 import { getItem, setItem, KEYS } from "@/lib/storage";
 import { generateId, hashPassword, normalizeUsername } from "@/lib/utils";
-import { SEED_USERS, buildSeedData, SEED_PASSWORD } from "./seed";
-
 interface StoredUser extends User {
   passwordHash: string;
 }
@@ -63,32 +61,6 @@ function saveReposts(reposts: Repost[]) {
 
 function saveFollows(follows: Follow[]) {
   setItem(KEYS.follows, follows);
-}
-
-export async function seedDatabaseIfNeeded(): Promise<void> {
-  if (getItem<boolean>(KEYS.seeded)) return;
-
-  const passwordHash = await hashPassword(SEED_PASSWORD);
-  const userIds: Record<string, string> = {};
-  const users: StoredUser[] = SEED_USERS.map((u) => {
-    const id = generateId();
-    userIds[u.username] = id;
-    return {
-      ...u,
-      id,
-      passwordHash,
-    };
-  });
-
-  const { posts, comments, likes, reposts, follows } = buildSeedData(userIds);
-
-  saveUsers(users);
-  savePosts(posts);
-  saveComments(comments);
-  saveLikes(likes);
-  saveReposts(reposts);
-  saveFollows(follows);
-  setItem(KEYS.seeded, true);
 }
 
 export function getUserById(id: string): User | null {

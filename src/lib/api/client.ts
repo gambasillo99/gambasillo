@@ -116,5 +116,4 @@ export const apiClient = {
     };
   },
 
-  seed: () => api<{ ok: boolean }>("/api/seed", { method: "POST" }),
 };

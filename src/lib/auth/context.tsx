@@ -14,7 +14,6 @@ import { getItem, setItem, removeItem, KEYS } from "@/lib/storage";
 import {
   loginUser,
   registerUser,
-  seedDatabaseIfNeeded,
   getUserById,
 } from "@/lib/data/store";
 import { apiClient } from "@/lib/api/client";
@@ -38,8 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function init() {
-      await seedDatabaseIfNeeded();
-
       if (isRemoteBackend()) {
         try {
           const { user: remoteUser } = await apiClient.auth.me();

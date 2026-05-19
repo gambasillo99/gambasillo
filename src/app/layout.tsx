@@ -9,9 +9,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Gambasillo — Red privada para amigos",
+  title: "Gambasillo — El club donde se gambea",
   description:
-    "Red social privada minimalista. Club underground de internet para tu crew.",
+    "Red privada para la crew. Sin algoritmos, sin anuncios, solo buena vibra underground.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

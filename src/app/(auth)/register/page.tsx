@@ -6,6 +6,7 @@ import { Logo } from "@/components/ui/Logo";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/auth/context";
+import { copy } from "@/lib/gambas-copy";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -33,7 +34,7 @@ export default function RegisterPage() {
       <div className="text-center mb-8">
         <Logo size="lg" className="justify-center" />
         <p className="text-gambas-muted mt-3 text-sm">
-          Únete al gambasillo 🦐
+          {copy.registerSubtitle}
         </p>
       </div>
 

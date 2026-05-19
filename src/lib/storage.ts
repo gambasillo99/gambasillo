@@ -6,7 +6,6 @@ const KEYS = {
   reposts: "gambasillo_reposts",
   follows: "gambasillo_follows",
   session: "gambasillo_session",
-  seeded: "gambasillo_seeded",
 } as const;
 
 export function getItem<T>(key: string): T | null {

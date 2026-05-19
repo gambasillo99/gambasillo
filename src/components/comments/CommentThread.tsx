@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { formatUsername } from "@/lib/utils";
 import Link from "next/link";
+import { copy } from "@/lib/gambas-copy";
 
 interface CommentThreadProps {
   comments: CommentWithAuthor[];
@@ -47,7 +48,7 @@ export function CommentThread({
       ))}
       {comments.length === 0 && (
         <p className="text-gambas-muted text-sm text-center py-8">
-          Sé el primero en comentar 🦐
+          {copy.commentsEmpty}
         </p>
       )}
     </div>
@@ -114,7 +115,7 @@ function CommentItem({
               onClick={() => onSetReplyingTo(isReplying ? null : comment.id)}
               className="text-gambas-muted text-xs mt-1 hover:text-gambas-accent transition-colors"
             >
-              Responder
+              Chirlar de vuelta
             </button>
           )}
           {isReplying && (
@@ -122,13 +123,13 @@ function CommentItem({
               <input
                 value={replyText}
                 onChange={(e) => onSetReplyText(e.target.value)}
-                placeholder="Escribe una respuesta..."
+                placeholder={copy.replyPlaceholder}
                 className="flex-1 text-sm bg-gambas-surface border border-gambas-border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-gambas-accent/40"
                 onKeyDown={(e) => e.key === "Enter" && onSubmit(comment.id)}
                 autoFocus
               />
               <Button size="sm" onClick={() => onSubmit(comment.id)}>
-                Enviar
+                {copy.enviarChirla}
               </Button>
             </div>
           )}

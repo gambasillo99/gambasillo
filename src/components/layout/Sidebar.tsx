@@ -14,11 +14,12 @@ import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/auth/context";
 import { cn } from "@/lib/utils";
+import { copy } from "@/lib/gambas-copy";
 
 const navItems = [
-  { href: "/feed", label: "Inicio", icon: Home },
+  { href: "/feed", label: copy.inicio, icon: Home },
   { href: "/profile", label: "Perfil", icon: User, dynamic: true },
-  { href: "/notifications", label: "Notificaciones", icon: Bell },
+  { href: "/notifications", label: copy.notifications, icon: Bell },
 ];
 
 export function Sidebar() {
@@ -65,7 +66,7 @@ export function Sidebar() {
         <Link href="/feed?compose=1">
           <Button fullWidth className="gap-2">
             <PenSquare className="w-4 h-4" />
-            Nuevo post
+            {copy.nuevaGamba}
           </Button>
         </Link>
 

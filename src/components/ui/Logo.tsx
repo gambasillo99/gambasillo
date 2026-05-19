@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { copy } from "@/lib/gambas-copy";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
@@ -8,9 +10,9 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { icon: "text-xl", text: "text-lg" },
-  md: { icon: "text-2xl", text: "text-xl" },
-  lg: { icon: "text-3xl", text: "text-2xl" },
+  sm: { img: 32, text: "text-lg" },
+  md: { img: 40, text: "text-xl" },
+  lg: { img: 56, text: "text-2xl" },
 };
 
 export function Logo({ size = "md", showText = true, className }: LogoProps) {
@@ -20,24 +22,21 @@ export function Logo({ size = "md", showText = true, className }: LogoProps) {
     <Link
       href="/feed"
       className={cn(
-        "inline-flex items-center gap-2 group transition-opacity hover:opacity-90",
+        "inline-flex items-center gap-2.5 group transition-opacity hover:opacity-90",
         className
       )}
     >
-      <span
-        className={cn(
-          s.icon,
-          "flex items-center justify-center w-9 h-9 rounded-xl",
-          "bg-gradient-to-br from-gambas-accent to-gambas-accent2",
-          "shadow-glow group-hover:scale-105 transition-transform duration-200"
-        )}
-        aria-hidden
-      >
-        🦐
-      </span>
+      <Image
+        src="/logo.png"
+        alt={copy.appName}
+        width={s.img}
+        height={s.img}
+        className="rounded-xl object-contain group-hover:scale-105 transition-transform duration-200"
+        priority
+      />
       {showText && (
         <span className={cn(s.text, "font-bold tracking-tight text-gradient")}>
-          Gambasillo
+          {copy.appName}
         </span>
       )}
     </Link>

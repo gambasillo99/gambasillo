@@ -8,6 +8,7 @@ import { useFeedPosts } from "@/hooks/usePosts";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useAuth } from "@/lib/auth/context";
 import type { MediaItem } from "@/types";
+import { copy } from "@/lib/gambas-copy";
 
 interface PostFeedProps {
   userId?: string;
@@ -69,12 +70,12 @@ export function PostFeed({ userId, showComposer = true }: PostFeedProps) {
       <div ref={sentinelRef} className="h-4" />
       {initialized && !hasMore && posts.length > 0 && (
         <p className="text-center text-gambas-muted text-sm py-8">
-          🦐 Has llegado al final del gambasillo
+          {copy.feedEnd}
         </p>
       )}
       {initialized && posts.length === 0 && (
         <p className="text-center text-gambas-muted py-12">
-          Aún no hay posts. ¡Sé el primero en publicar!
+          {copy.feedEmpty}
         </p>
       )}
     </div>

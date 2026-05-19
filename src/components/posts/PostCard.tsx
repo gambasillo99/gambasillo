@@ -8,6 +8,7 @@ import type { PostWithAuthor } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { MediaPreview } from "./MediaPreview";
 import { cn, formatUsername } from "@/lib/utils";
+import { copy } from "@/lib/gambas-copy";
 
 interface PostCardProps {
   post: PostWithAuthor;
@@ -77,13 +78,13 @@ export function PostCard({ post, onLike, onRepost, showFull }: PostCardProps) {
               active={post.likedByMe}
               activeColor="text-pink-500"
               onClick={() => onLike?.(post.id)}
-              label="Like"
+              label={copy.gambita}
             />
             <Link href={`/post/${post.id}`}>
               <ActionButton
                 icon={MessageCircle}
                 count={post.commentsCount}
-                label="Comentarios"
+                label={copy.chirlas}
                 asSpan
               />
             </Link>
@@ -93,7 +94,7 @@ export function PostCard({ post, onLike, onRepost, showFull }: PostCardProps) {
               active={post.repostedByMe}
               activeColor="text-emerald-500"
               onClick={() => onRepost?.(post.id)}
-              label="Repost"
+              label={copy.regamba}
             />
           </div>
         </div>

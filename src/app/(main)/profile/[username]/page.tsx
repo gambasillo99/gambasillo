@@ -37,12 +37,12 @@ export default function ProfilePage({
   if (!profile) {
     return (
       <div className="p-8 text-center">
-        <p className="text-gambas-muted">Usuario no encontrado</p>
+        <p className="text-gambas-muted">Gambero no encontrado</p>
         <Link
           href="/feed"
           className="text-gambas-accent text-sm mt-2 inline-block hover:underline"
         >
-          Volver al feed
+          Volver al gambasillín
         </Link>
       </div>
     );

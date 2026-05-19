@@ -6,6 +6,7 @@ import { Logo } from "@/components/ui/Logo";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/auth/context";
+import { copy } from "@/lib/gambas-copy";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -28,7 +29,7 @@ export default function LoginPage() {
       <div className="text-center mb-8">
         <Logo size="lg" className="justify-center" />
         <p className="text-gambas-muted mt-3 text-sm">
-          Entra al club privado 🦐
+          {copy.loginSubtitle}
         </p>
       </div>
 
@@ -74,9 +75,6 @@ export default function LoginPage() {
         </Link>
       </p>
 
-      <p className="text-center text-gambas-muted/60 text-xs mt-4">
-        Demo: @marina / gambas123
-      </p>
     </div>
   );
 }
