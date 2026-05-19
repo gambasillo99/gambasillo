@@ -66,8 +66,9 @@ export interface PostWithAuthor extends Post {
   author: User;
 }
 
-export interface CommentWithAuthor extends Comment {
+export interface CommentWithAuthor extends Omit<Comment, "replies"> {
   author: User;
+  replies?: CommentWithAuthor[];
 }
 
 export interface AuthUser {
