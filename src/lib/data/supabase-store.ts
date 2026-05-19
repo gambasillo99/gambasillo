@@ -4,7 +4,7 @@ import type {
   CommentWithAuthor,
   MediaItem,
 } from "@/types";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, UserRow } from "@/lib/supabase/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { mapUser, mapPost, mapComment } from "@/lib/supabase/mappers";
 import { hashPassword, normalizeUsername } from "@/lib/utils";
@@ -24,27 +24,33 @@ async function enrichPosts(
   const userIds = [...new Set(posts.map((p) => p.userId))];
   const postIds = posts.map((p) => p.id);
 
-  const [{ data: users }, { data: likes }, { data: reposts }] = await Promise.all([
-    supabase.from("users").select("*").in("id", userIds),
-    currentUserId
-      ? supabase
-          .from("likes")
-          .select("post_id")
-          .eq("user_id", currentUserId)
-          .in("post_id", postIds)
-      : Promise.resolve({ data: [] as { post_id: string }[] }),
-    currentUserId
-      ? supabase
-          .from("reposts")
-          .select("post_id")
-          .eq("user_id", currentUserId)
-          .in("post_id", postIds)
-      : Promise.resolve({ data: [] as { post_id: string }[] }),
-  ]);
+  const { data: usersData } = await supabase
+    .from("users")
+    .select("*")
+    .in("id", userIds);
 
-  const userMap = new Map((users ?? []).map((u) => [u.id, mapUser(u)]));
-  const likedSet = new Set((likes ?? []).map((l) => l.post_id));
-  const repostedSet = new Set((reposts ?? []).map((r) => r.post_id));
+  const users: UserRow[] = usersData ?? [];
+  const userMap = new Map(users.map((u) => [u.id, mapUser(u)]));
+
+  const likedSet = new Set<string>();
+  const repostedSet = new Set<string>();
+
+  if (currentUserId && postIds.length > 0) {
+    const { data: likesData } = await supabase
+      .from("likes")
+      .select("post_id")
+      .eq("user_id", currentUserId)
+      .in("post_id", postIds);
+
+    const { data: repostsData } = await supabase
+      .from("reposts")
+      .select("post_id")
+      .eq("user_id", currentUserId)
+      .in("post_id", postIds);
+
+    (likesData ?? []).forEach((l) => likedSet.add(l.post_id));
+    (repostsData ?? []).forEach((r) => repostedSet.add(r.post_id));
+  }
 
   return posts.map((post) => ({
     ...post,
@@ -187,7 +193,7 @@ export async function supabaseCreatePost(
     .insert({
       user_id: userId,
       content,
-      media: media as unknown as Database["public"]["Tables"]["posts"]["Insert"]["media"],
+      media: media as Database["public"]["Tables"]["posts"]["Insert"]["media"],
     })
     .select("*")
     .single();
@@ -318,8 +324,12 @@ export async function supabaseGetPostComments(
   if (!comments?.length) return [];
 
   const userIds = [...new Set(comments.map((c) => c.user_id))];
-  const { data: users } = await db().from("users").select("*").in("id", userIds);
-  const userMap = new Map((users ?? []).map((u) => [u.id, mapUser(u)]));
+  const { data: usersData } = await db()
+    .from("users")
+    .select("*")
+    .in("id", userIds);
+  const users: UserRow[] = usersData ?? [];
+  const userMap = new Map(users.map((u) => [u.id, mapUser(u)]));
 
   const withAuthors: CommentWithAuthor[] = comments.map((c) => ({
     ...mapComment(c),
@@ -518,7 +528,7 @@ export async function supabaseSeedIfEmpty(): Promise<void> {
           type: "image",
           url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
         },
-      ],
+      ] as Database["public"]["Tables"]["posts"]["Insert"]["media"],
       likes_count: 22,
       reposts_count: 6,
       comments_count: 2,
