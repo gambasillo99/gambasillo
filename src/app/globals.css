@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gambas-bg: #0a0a0f;
+  --gambas-accent: #ff6b4a;
+  --gambas-accent2: #7c5cff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a3a transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2a2a3a;
+  border-radius: 3px;
+}
+
+body {
+  background: var(--gambas-bg);
+  color: #e8e8f0;
+  min-height: 100vh;
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-gambas-accent via-gambas-shrimp to-gambas-accent2 bg-clip-text text-transparent;
+  }
+
+  .bg-mesh {
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 107, 74, 0.15), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(124, 92, 255, 0.1), transparent);
+  }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:bg-gambas-card/80 hover:shadow-glow;
+  }
+
+  .btn-press {
+    @apply active:scale-[0.97] transition-transform duration-100;
+  }
+}
