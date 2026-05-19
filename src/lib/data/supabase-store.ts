@@ -1,5 +1,6 @@
 import type {
   User,
+  Post,
   PostWithAuthor,
   CommentWithAuthor,
   MediaItem,
@@ -12,56 +13,26 @@ import {
   mapComment,
   serializeMedia,
 } from "@/lib/supabase/mappers";
+import { parsePoll } from "@/lib/supabase/social-mappers";
+import {
+  enrichPosts,
+  createNotification,
+  notifyMentions,
+} from "@/lib/data/supabase-social";
 import { hashPassword, normalizeUsername } from "@/lib/utils";
 
 function db() {
   return createAdminClient();
 }
 
-async function enrichPosts(
-  posts: ReturnType<typeof mapPost>[],
+type DbPostRow = Parameters<typeof mapPost>[0];
+
+async function rowsToPosts(
+  rows: DbPostRow[],
   currentUserId?: string
 ): Promise<PostWithAuthor[]> {
-  if (!posts.length) return [];
-
-  const supabase = db();
-  const userIds = [...new Set(posts.map((p) => p.userId))];
-  const postIds = posts.map((p) => p.id);
-
-  const { data: usersData } = await supabase
-    .from("users")
-    .select("*")
-    .in("id", userIds);
-
-  const users: UserRow[] = usersData ?? [];
-  const userMap = new Map(users.map((u) => [u.id, mapUser(u)]));
-
-  const likedSet = new Set<string>();
-  const repostedSet = new Set<string>();
-
-  if (currentUserId && postIds.length > 0) {
-    const { data: likesData } = await supabase
-      .from("likes")
-      .select("post_id")
-      .eq("user_id", currentUserId)
-      .in("post_id", postIds);
-
-    const { data: repostsData } = await supabase
-      .from("reposts")
-      .select("post_id")
-      .eq("user_id", currentUserId)
-      .in("post_id", postIds);
-
-    (likesData ?? []).forEach((l) => likedSet.add(l.post_id));
-    (repostsData ?? []).forEach((r) => repostedSet.add(r.post_id));
-  }
-
-  return posts.map((post) => ({
-    ...post,
-    author: userMap.get(post.userId)!,
-    likedByMe: likedSet.has(post.id),
-    repostedByMe: repostedSet.has(post.id),
-  }));
+  const posts: Post[] = rows.map((row) => mapPost(row, { poll: parsePoll(row.poll) }));
+  return enrichPosts(posts, currentUserId);
 }
 
 export async function supabaseGetUserById(id: string): Promise<User | null> {
@@ -109,6 +80,8 @@ export async function supabaseRegisterUser(
       display_name: displayName || normalized,
       bio: "",
       avatar_url: "",
+      banner_url: "",
+      links: [],
       password_hash: passwordHash,
     })
     .select("*")
@@ -154,7 +127,7 @@ export async function supabaseGetFeedPosts(
     .range(from, to);
 
   if (!data?.length) return [];
-  return enrichPosts(data.map(mapPost), currentUserId);
+  return rowsToPosts(data as DbPostRow[], currentUserId);
 }
 
 export async function supabaseGetUserPosts(
@@ -170,11 +143,13 @@ export async function supabaseGetUserPosts(
     .from("posts")
     .select("*")
     .eq("user_id", userId)
+    .order("is_pinned", { ascending: false })
+    .order("pinned_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .range(from, to);
 
   if (!data?.length) return [];
-  return enrichPosts(data.map(mapPost), currentUserId);
+  return rowsToPosts(data as DbPostRow[], currentUserId);
 }
 
 export async function supabaseGetPostById(
@@ -183,28 +158,18 @@ export async function supabaseGetPostById(
 ): Promise<PostWithAuthor | null> {
   const { data } = await db().from("posts").select("*").eq("id", id).single();
   if (!data) return null;
-  const [post] = await enrichPosts([mapPost(data)], currentUserId);
+  const [post] = await rowsToPosts([data as DbPostRow], currentUserId);
   return post ?? null;
 }
 
 export async function supabaseCreatePost(
   userId: string,
   content: string,
-  media: MediaItem[] = []
+  media: MediaItem[] = [],
+  pollOptions?: string[]
 ): Promise<PostWithAuthor> {
-  const { data, error } = await db()
-    .from("posts")
-    .insert({
-      user_id: userId,
-      content,
-      media: serializeMedia(media),
-    })
-    .select("*")
-    .single();
-
-  if (error || !data) throw new Error(error?.message ?? "Error al crear post");
-  const [post] = await enrichPosts([mapPost(data)], userId);
-  return post;
+  const { supabaseCreatePostWithPoll } = await import("@/lib/data/supabase-social");
+  return supabaseCreatePostWithPoll(userId, content, media, pollOptions);
 }
 
 export async function supabaseToggleLike(
@@ -236,7 +201,7 @@ export async function supabaseToggleLike(
     await supabase.from("likes").insert({ post_id: postId, user_id: userId });
     const { data: post } = await supabase
       .from("posts")
-      .select("likes_count")
+      .select("likes_count, user_id")
       .eq("id", postId)
       .single();
     if (post) {
@@ -244,6 +209,9 @@ export async function supabaseToggleLike(
         .from("posts")
         .update({ likes_count: post.likes_count + 1 })
         .eq("id", postId);
+      if (post.user_id !== userId) {
+        await createNotification(post.user_id, userId, "like", { postId });
+      }
     }
   }
 
@@ -375,6 +343,19 @@ export async function supabaseAddComment(
       .from("posts")
       .update({ comments_count: post.comments_count + 1 })
       .eq("id", postId);
+
+    const { data: postOwner } = await supabase
+      .from("posts")
+      .select("user_id")
+      .eq("id", postId)
+      .single();
+    if (postOwner && postOwner.user_id !== userId) {
+      await createNotification(postOwner.user_id, userId, "comment", {
+        postId,
+        commentId: data.id,
+      });
+    }
+    await notifyMentions(content, userId, postId);
   }
 
   const author = await supabaseGetUserById(userId);
@@ -429,6 +410,7 @@ export async function supabaseToggleFollow(
   await supabase
     .from("follows")
     .insert({ follower_id: followerId, following_id: followingId });
+  await createNotification(followingId, followerId, "follow");
   const newFollowers = target.followers_count + 1;
   const newFollowing = follower.following_count + 1;
   await supabase
@@ -456,10 +438,8 @@ export async function supabaseIsFollowing(
 }
 
 export async function supabaseGetActiveMembers(): Promise<User[]> {
-  const { data } = await db()
-    .from("users")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(5);
-  return (data ?? []).map(mapUser);
+  const { supabaseGetOnlineMembers } = await import("@/lib/data/supabase-social");
+  return supabaseGetOnlineMembers();
 }
+
+export { supabaseUpdatePost, supabaseToggleReaction, supabaseVotePoll, supabaseTogglePin, supabaseUpdateProfile, supabaseGetNotifications, supabaseMarkNotificationsRead, supabaseGetUnreadCount, supabaseUpdateLastSeen, supabaseGetFollowingFeed, supabaseGetForYouFeed } from "@/lib/data/supabase-social";

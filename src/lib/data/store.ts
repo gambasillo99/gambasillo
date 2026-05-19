@@ -3,6 +3,10 @@ import type {
   PostWithAuthor,
   CommentWithAuthor,
   MediaItem,
+  ReactionEmoji,
+  UpdateProfileInput,
+  Notification,
+  FeedMode,
 } from "@/types";
 import { apiClient } from "@/lib/api/client";
 import { isRemoteBackend } from "@/lib/config";
@@ -73,13 +77,14 @@ export async function loginUser(
 export async function getFeedPosts(
   page: number,
   pageSize: number,
-  currentUserId?: string
+  currentUserId?: string,
+  mode: FeedMode = "foryou"
 ): Promise<PostWithAuthor[]> {
   if (isRemoteBackend()) {
-    const { posts } = await apiClient.posts.feed(page, pageSize);
+    const { posts } = await apiClient.posts.feed(page, pageSize, mode);
     return posts;
   }
-  return local.getFeedPosts(page, pageSize, currentUserId);
+  return local.getFeedPosts(page, pageSize, currentUserId, mode);
 }
 
 export async function getUserPosts(
@@ -113,13 +118,27 @@ export async function getPostById(
 export async function createPost(
   userId: string,
   content: string,
-  media: MediaItem[] = []
+  media: MediaItem[] = [],
+  pollOptions?: string[]
 ): Promise<PostWithAuthor> {
   if (isRemoteBackend()) {
-    const { post } = await apiClient.posts.create(content, media);
+    const { post } = await apiClient.posts.create(content, media, pollOptions);
     return post;
   }
-  return local.createPost(userId, content, media);
+  return local.createPost(userId, content, media, pollOptions);
+}
+
+export async function updatePost(
+  postId: string,
+  userId: string,
+  content: string,
+  media?: MediaItem[]
+): Promise<PostWithAuthor | null> {
+  if (isRemoteBackend()) {
+    const { post } = await apiClient.posts.update(postId, content, media);
+    return post;
+  }
+  return local.updatePost(postId, userId, content, media);
 }
 
 export async function toggleLike(
@@ -142,6 +161,41 @@ export async function toggleRepost(
     return post;
   }
   return local.toggleRepost(postId, userId);
+}
+
+export async function toggleReaction(
+  postId: string,
+  userId: string,
+  emoji: ReactionEmoji
+): Promise<PostWithAuthor | null> {
+  if (isRemoteBackend()) {
+    const { post } = await apiClient.posts.react(postId, emoji);
+    return post;
+  }
+  return local.toggleReaction(postId, userId, emoji);
+}
+
+export async function votePoll(
+  postId: string,
+  userId: string,
+  optionId: string
+): Promise<PostWithAuthor | null> {
+  if (isRemoteBackend()) {
+    const { post } = await apiClient.posts.votePoll(postId, optionId);
+    return post;
+  }
+  return local.votePoll(postId, userId, optionId);
+}
+
+export async function togglePin(
+  postId: string,
+  userId: string
+): Promise<PostWithAuthor | null> {
+  if (isRemoteBackend()) {
+    const { post } = await apiClient.posts.pin(postId);
+    return post;
+  }
+  return local.togglePin(postId, userId);
 }
 
 export async function getPostComments(
@@ -199,4 +253,40 @@ export async function getActiveMembers(): Promise<User[]> {
     return users;
   }
   return local.getActiveMembers();
+}
+
+export async function updateProfile(
+  userId: string,
+  input: UpdateProfileInput
+): Promise<User | null> {
+  if (isRemoteBackend()) {
+    const { user } = await apiClient.users.updateProfile(input);
+    return user;
+  }
+  return local.updateProfile(userId, input);
+}
+
+export async function sendPresence(userId: string): Promise<void> {
+  if (isRemoteBackend()) {
+    await apiClient.users.presence().catch(() => {});
+    return;
+  }
+  local.updateLastSeen(userId);
+}
+
+export async function getNotifications(
+  userId: string
+): Promise<{ notifications: Notification[]; unreadCount: number }> {
+  if (isRemoteBackend()) {
+    return apiClient.notifications.list();
+  }
+  return local.getNotifications(userId);
+}
+
+export async function markNotificationsRead(userId: string): Promise<void> {
+  if (isRemoteBackend()) {
+    await apiClient.notifications.markRead();
+    return;
+  }
+  local.markNotificationsRead(userId);
 }

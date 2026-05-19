@@ -13,20 +13,38 @@ export async function GET(request: Request) {
   const page = Number(searchParams.get("page") ?? 0);
   const pageSize = Number(searchParams.get("pageSize") ?? 10);
   const userId = searchParams.get("userId");
+  const mode = searchParams.get("mode") ?? "foryou";
   const currentUserId = await getSessionUserId();
 
-  const posts = userId
-    ? await supabaseStore.supabaseGetUserPosts(
-        userId,
-        page,
-        pageSize,
-        currentUserId ?? undefined
-      )
-    : await supabaseStore.supabaseGetFeedPosts(
-        page,
-        pageSize,
-        currentUserId ?? undefined
-      );
+  let posts;
+  if (userId) {
+    posts = await supabaseStore.supabaseGetUserPosts(
+      userId,
+      page,
+      pageSize,
+      currentUserId ?? undefined
+    );
+  } else if (mode === "following" && currentUserId) {
+    posts = await supabaseStore.supabaseGetFollowingFeed(
+      currentUserId,
+      page,
+      pageSize
+    );
+  } else if (mode === "foryou") {
+    posts = currentUserId
+      ? await supabaseStore.supabaseGetForYouFeed(currentUserId, page, pageSize)
+      : await supabaseStore.supabaseGetFeedPosts(
+          page,
+          pageSize,
+          undefined
+        );
+  } else {
+    posts = await supabaseStore.supabaseGetFeedPosts(
+      page,
+      pageSize,
+      currentUserId ?? undefined
+    );
+  }
 
   return NextResponse.json({ posts });
 }
@@ -41,15 +59,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
-  const { content, media } = (await request.json()) as {
+  const { content, media, pollOptions } = (await request.json()) as {
     content: string;
     media?: MediaItem[];
+    pollOptions?: string[];
   };
 
   const post = await supabaseStore.supabaseCreatePost(
     userId,
     content,
-    media ?? []
+    media ?? [],
+    pollOptions
   );
 
   return NextResponse.json({ post });

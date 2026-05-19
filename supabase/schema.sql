@@ -1,5 +1,6 @@
--- Gambasillo — Supabase PostgreSQL schema
+-- Gambasillo — Supabase PostgreSQL schema (base)
 -- Ejecutar en: Supabase Dashboard → SQL Editor
+-- Después ejecutar: supabase/migrations/002_social_features.sql
 
 create table if not exists users (
   id uuid primary key default gen_random_uuid(),

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { isUserOnline } from "@/lib/presence";
 
 interface AvatarProps {
   username: string;
@@ -8,6 +9,8 @@ interface AvatarProps {
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   linkToProfile?: boolean;
   className?: string;
+  lastSeenAt?: string | null;
+  showOnline?: boolean;
 }
 
 const sizeClasses = {
@@ -16,6 +19,14 @@ const sizeClasses = {
   md: "w-10 h-10 text-sm",
   lg: "w-14 h-14 text-lg",
   xl: "w-20 h-20 text-2xl",
+};
+
+const dotSizes = {
+  xs: "w-2 h-2 border",
+  sm: "w-2.5 h-2.5 border-2",
+  md: "w-3 h-3 border-2",
+  lg: "w-3.5 h-3.5 border-2",
+  xl: "w-4 h-4 border-2",
 };
 
 const colors = [
@@ -41,9 +52,12 @@ export function Avatar({
   size = "md",
   linkToProfile = true,
   className,
+  lastSeenAt,
+  showOnline = false,
 }: AvatarProps) {
   const initial = (displayName || username).charAt(0).toUpperCase();
   const gradient = getColor(username);
+  const online = showOnline && isUserOnline(lastSeenAt);
 
   const inner = avatarUrl ? (
     // eslint-disable-next-line @next/next/no-img-element
@@ -55,8 +69,7 @@ export function Avatar({
   ) : (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center font-bold text-white",
-        "bg-gradient-to-br shadow-card",
+        "rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-br shadow-card",
         gradient,
         sizeClasses[size],
         className
@@ -66,16 +79,32 @@ export function Avatar({
     </div>
   );
 
+  const wrapped = (
+    <span className="relative inline-block shrink-0">
+      {inner}
+      {showOnline && (
+        <span
+          className={cn(
+            "absolute bottom-0 right-0 rounded-full border-gambas-bg",
+            dotSizes[size],
+            online ? "bg-emerald-500" : "bg-zinc-500"
+          )}
+          title={online ? "online" : "offline"}
+        />
+      )}
+    </span>
+  );
+
   if (linkToProfile) {
     return (
       <Link
         href={`/profile/${username}`}
-        className="shrink-0 hover:opacity-90 transition-opacity"
+        className="hover:opacity-90 transition-opacity"
       >
-        {inner}
+        {wrapped}
       </Link>
     );
   }
 
-  return <div className="shrink-0">{inner}</div>;
+  return wrapped;
 }

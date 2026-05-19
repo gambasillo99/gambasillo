@@ -6,9 +6,11 @@ import { Sidebar } from "./Sidebar";
 import { RightSidebar } from "./RightSidebar";
 import { MobileNav } from "./MobileNav";
 import { useAuth } from "@/lib/auth/context";
+import { usePresence } from "@/hooks/usePresence";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  usePresence(user?.id);
   const router = useRouter();
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Image, Video, Mic, X, Loader2 } from "lucide-react";
+import { Image, Video, Mic, X, Loader2, BarChart3 } from "lucide-react";
 import type { MediaItem } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -10,9 +10,14 @@ import { generateId } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
 import { MediaPreview } from "./MediaPreview";
 import { copy } from "@/lib/gambas-copy";
+import { compressImageFile } from "@/lib/compress-media";
 
 interface PostComposerProps {
-  onPost: (content: string, media: MediaItem[]) => void | Promise<void>;
+  onPost: (
+    content: string,
+    media: MediaItem[],
+    pollOptions?: string[]
+  ) => void | Promise<void>;
   autoFocus?: boolean;
 }
 
@@ -30,17 +35,24 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
   const [mediaType, setMediaType] = useState<"image" | "video" | "audio" | null>(
     null
   );
+  const [showPoll, setShowPoll] = useState(false);
+  const [pollOptions, setPollOptions] = useState(["", ""]);
 
   if (!user) return null;
 
   const handleSubmit = async () => {
     const trimmed = content.trim();
-    if (!trimmed && media.length === 0) return;
+    const polls = showPoll
+      ? pollOptions.filter((o) => o.trim())
+      : undefined;
+    if (!trimmed && media.length === 0 && !polls?.length) return;
     setPosting(true);
     try {
-      await onPost(trimmed, media);
+      await onPost(trimmed, media, polls?.length ? polls : undefined);
       setContent("");
       setMedia([]);
+      setShowPoll(false);
+      setPollOptions(["", ""]);
     } finally {
       setPosting(false);
     }
@@ -52,7 +64,10 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
 
     setUploading(true);
     try {
-      for (const file of Array.from(files)) {
+      for (let file of Array.from(files)) {
+        if (mediaType === "image") {
+          file = await compressImageFile(file);
+        }
         if (hasCloudinaryUpload) {
           const uploaded = await apiClient.upload(file, mediaType);
           setMedia((prev) => [
@@ -85,8 +100,13 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
     fileInputRef.current?.click();
   };
 
+  const pollFilled = pollOptions.filter((o) => o.trim()).length >= 2;
   const canPost =
-    (content.trim().length > 0 || media.length > 0) && !posting && !uploading;
+    (content.trim().length > 0 ||
+      media.length > 0 ||
+      (showPoll && pollFilled)) &&
+    !posting &&
+    !uploading;
 
   return (
     <div className="p-4 border-b border-gambas-border/40">
@@ -106,6 +126,13 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
             rows={3}
             className="w-full bg-transparent text-gambas-text placeholder:text-gambas-muted/60 resize-none focus:outline-none text-[15px] leading-relaxed"
           />
+
+          {showPoll && (
+            <PollEditor
+              pollOptions={pollOptions}
+              setPollOptions={setPollOptions}
+            />
+          )}
 
           {media.length > 0 && (
             <div className="relative">
@@ -156,6 +183,12 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
                 disabled={uploading}
                 onClick={() => openFilePicker("audio")}
               />
+              <MediaButton
+                icon={BarChart3}
+                label={copy.pollAdd}
+                disabled={uploading}
+                onClick={() => setShowPoll(!showPoll)}
+              />
               {uploading && (
                 <Loader2 className="w-4 h-4 text-gambas-accent animate-spin ml-1" />
               )}
@@ -166,6 +199,41 @@ export function PostComposer({ onPost, autoFocus }: PostComposerProps) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function PollEditor({
+  pollOptions,
+  setPollOptions,
+}: {
+  pollOptions: string[];
+  setPollOptions: (v: string[]) => void;
+}) {
+  return (
+    <div className="space-y-2 rounded-xl border border-gambas-border/40 p-3">
+      {pollOptions.map((opt, i) => (
+        <input
+          key={i}
+          value={opt}
+          onChange={(e) => {
+            const next = [...pollOptions];
+            next[i] = e.target.value;
+            setPollOptions(next);
+          }}
+          placeholder={`${copy.pollOption} ${i + 1}`}
+          className="w-full bg-gambas-surface border border-gambas-border rounded-lg px-3 py-1.5 text-sm"
+        />
+      ))}
+      {pollOptions.length < 4 && (
+        <button
+          type="button"
+          className="text-xs text-gambas-accent"
+          onClick={() => setPollOptions([...pollOptions, ""])}
+        >
+          + otra opción
+        </button>
+      )}
     </div>
   );
 }

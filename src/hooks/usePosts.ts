@@ -1,18 +1,26 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { PostWithAuthor, MediaItem } from "@/types";
+import type { FeedMode, PostWithAuthor, MediaItem, ReactionEmoji } from "@/types";
 import {
   getFeedPosts,
   getUserPosts,
   createPost,
+  updatePost,
   toggleLike,
   toggleRepost,
+  toggleReaction,
+  votePoll,
+  togglePin,
 } from "@/lib/data/store";
 
 const PAGE_SIZE = 10;
 
-export function useFeedPosts(profileUserId?: string, currentUserId?: string) {
+export function useFeedPosts(
+  profileUserId?: string,
+  currentUserId?: string,
+  feedMode: FeedMode = "foryou"
+) {
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -26,7 +34,7 @@ export function useFeedPosts(profileUserId?: string, currentUserId?: string) {
     try {
       const newPosts = profileUserId
         ? await getUserPosts(profileUserId, page, PAGE_SIZE, currentUserId)
-        : await getFeedPosts(page, PAGE_SIZE, currentUserId);
+        : await getFeedPosts(page, PAGE_SIZE, currentUserId, feedMode);
 
       setPosts((prev) => (page === 0 ? newPosts : [...prev, ...newPosts]));
       setHasMore(newPosts.length === PAGE_SIZE);
@@ -35,7 +43,7 @@ export function useFeedPosts(profileUserId?: string, currentUserId?: string) {
       setLoading(false);
       setInitialized(true);
     }
-  }, [loading, hasMore, page, profileUserId, currentUserId]);
+  }, [loading, hasMore, page, profileUserId, currentUserId, feedMode]);
 
   const refresh = useCallback(() => {
     setPosts([]);
@@ -45,39 +53,71 @@ export function useFeedPosts(profileUserId?: string, currentUserId?: string) {
   }, []);
 
   const addPost = useCallback(
-    async (content: string, media: MediaItem[] = []) => {
+    async (content: string, media: MediaItem[] = [], pollOptions?: string[]) => {
       if (!currentUserId) return;
-      const post = await createPost(currentUserId, content, media);
+      const post = await createPost(currentUserId, content, media, pollOptions);
       setPosts((prev) => [post, ...prev]);
     },
     [currentUserId]
   );
 
+  const patchPost = useCallback((updated: PostWithAuthor) => {
+    setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  }, []);
+
   const likePost = useCallback(
     async (postId: string) => {
       if (!currentUserId) return;
       const updated = await toggleLike(postId, currentUserId);
-      if (updated) {
-        setPosts((prev) => prev.map((p) => (p.id === postId ? updated : p)));
-      }
+      if (updated) patchPost(updated);
     },
-    [currentUserId]
+    [currentUserId, patchPost]
   );
 
   const repostPost = useCallback(
     async (postId: string) => {
       if (!currentUserId) return;
       const updated = await toggleRepost(postId, currentUserId);
-      if (updated) {
-        setPosts((prev) => prev.map((p) => (p.id === postId ? updated : p)));
-      }
+      if (updated) patchPost(updated);
     },
-    [currentUserId]
+    [currentUserId, patchPost]
   );
 
-  const updatePost = useCallback((updated: PostWithAuthor) => {
-    setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-  }, []);
+  const reactPost = useCallback(
+    async (postId: string, emoji: ReactionEmoji) => {
+      if (!currentUserId) return;
+      const updated = await toggleReaction(postId, currentUserId, emoji);
+      if (updated) patchPost(updated);
+    },
+    [currentUserId, patchPost]
+  );
+
+  const votePostPoll = useCallback(
+    async (postId: string, optionId: string) => {
+      if (!currentUserId) return;
+      const updated = await votePoll(postId, currentUserId, optionId);
+      if (updated) patchPost(updated);
+    },
+    [currentUserId, patchPost]
+  );
+
+  const editPost = useCallback(
+    async (postId: string, content: string) => {
+      if (!currentUserId) return;
+      const updated = await updatePost(postId, currentUserId, content);
+      if (updated) patchPost(updated);
+    },
+    [currentUserId, patchPost]
+  );
+
+  const pinPost = useCallback(
+    async (postId: string) => {
+      if (!currentUserId) return;
+      const updated = await togglePin(postId, currentUserId);
+      if (updated) patchPost(updated);
+    },
+    [currentUserId, patchPost]
+  );
 
   return {
     posts,
@@ -89,6 +129,10 @@ export function useFeedPosts(profileUserId?: string, currentUserId?: string) {
     addPost,
     likePost,
     repostPost,
-    updatePost,
+    reactPost,
+    votePostPoll,
+    editPost,
+    pinPost,
+    updatePost: patchPost,
   };
 }

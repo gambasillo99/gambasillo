@@ -6,6 +6,9 @@ const KEYS = {
   reposts: "gambasillo_reposts",
   follows: "gambasillo_follows",
   session: "gambasillo_session",
+  reactions: "gambasillo_reactions",
+  notifications: "gambasillo_notifications",
+  pollVotes: "gambasillo_poll_votes",
 } as const;
 
 export function getItem<T>(key: string): T | null {

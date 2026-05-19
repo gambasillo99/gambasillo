@@ -44,15 +44,20 @@ export function RightSidebar() {
                     username={member.username}
                     displayName={member.displayName}
                     avatarUrl={member.avatarUrl}
+                    lastSeenAt={member.lastSeenAt}
+                    showOnline
                     size="sm"
                     linkToProfile={false}
                   />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm truncate group-hover:text-gambas-accent transition-colors">
                       {member.displayName}
                     </p>
                     <p className="text-gambas-muted text-xs truncate">
-                      {formatUsername(member.username)}
+                      {formatUsername(member.username)}{" "}
+                      <span className="text-emerald-500">
+                        · {copy.online}
+                      </span>
                     </p>
                   </div>
                 </Link>

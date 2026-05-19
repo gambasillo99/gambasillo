@@ -3,50 +3,60 @@ export const copy = {
   appName: "Gambasillo",
   tagline: "El club privado donde se gambea en serio",
 
-  // Acciones
   gambear: "Gambear",
   gambearing: "Gambeando...",
   nuevaGamba: "Nueva gamba",
+  editGamba: "Editar gamba",
   regamba: "Regamba",
-  gambita: "Gambita", // like
-  chirlas: "Chirlas", // comentarios
+  gambita: "Gambita",
+  chirlas: "Chirlas",
   chirl: "Chirlar",
   chirla: "Chirla",
   enviarChirla: "Enviar chirla",
+  pinGamba: "Fijar en el visillo",
+  unpinGamba: "Quitar del visillo",
 
-  // Lugares
-  feed: "Gambasillín",
-  inicio: "Gambasillín",
+  feed: "Visillo de Gambasillo",
+  inicio: "Visillo de Gambasillo",
+  feedFollowing: "Seguidos",
+  feedForYou: "Para ti",
   gamba: "Gamba",
   gambaDetail: "Gamba",
 
-  // Placeholders
-  composePlaceholder: "¿Qué se gambea hoy en el club?",
+  composePlaceholder: "¿Qué se gambea hoy en el club? @usuario #gambasillo",
   commentPlaceholder: "Escribe una chirla...",
   replyPlaceholder: "Chirla de vuelta...",
+  pollAdd: "Añadir encuesta",
+  pollOption: "Opción",
 
-  // Empty states
   feedEmpty: "Aún no hay gambas. ¡Sé el primero en gambear!",
-  feedEnd: "🦐 Has llegado al fin del gambasillín",
+  feedEnd: "🦐 Has llegado al fin del visillo",
   commentsEmpty: "Sé el primero en chirlar 🦐",
   profilePostsEmpty: "Este gambusero aún no ha gambeado nada.",
 
-  // Auth
   loginSubtitle: "Entra al club privado 🦐",
   registerSubtitle: "Únete al gambasillín 🦐",
 
-  // Sidebar / club
   clubTitle: "🦐 Club Gambasillo",
   clubDesc:
     "Red privada para la crew. Sin algoritmos, sin anuncios, solo buena vibra underground.",
   activeMembers: "Gamberos activos",
+  online: "online",
+  offline: "offline",
 
-  // Profile
   following: "siguiendo",
   followers: "seguidores",
   follow: "Seguir la corriente",
   followingBtn: "En la corriente",
+  editProfile: "Editar perfil",
 
-  // Notifications
   notifications: "Gambalertas",
+  notificationsEmpty: "Sin gambalertas por ahora",
+  notificationsHint:
+    "Cuando alguien te siga, dé una gambita, chirle o reaccione, lo verás aquí.",
+
+  notifFollow: "te siguió la corriente",
+  notifLike: "te dio una gambita",
+  notifComment: "chirló en tu gamba",
+  notifReaction: "reaccionó a tu gamba",
 } as const;

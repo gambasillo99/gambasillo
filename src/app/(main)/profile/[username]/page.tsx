@@ -7,6 +7,7 @@ import { getUserByUsername } from "@/lib/data/store";
 import type { User } from "@/types";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useAuth } from "@/lib/auth/context";
 
 export default function ProfilePage({
   params,
@@ -14,6 +15,7 @@ export default function ProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
+  const { user: currentUser } = useAuth();
   const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,8 +66,14 @@ export default function ProfilePage({
           <p className="text-gambas-muted text-xs">@{profile.username}</p>
         </div>
       </header>
-      <ProfileHeader profile={profile} />
-      <PostFeed userId={profile.id} showComposer={false} />
+      <ProfileHeader
+        profile={profile}
+        onProfileUpdate={(u) => setProfile(u)}
+      />
+      <PostFeed
+        userId={profile.id}
+        showComposer={currentUser?.id === profile.id}
+      />
     </div>
   );
 }

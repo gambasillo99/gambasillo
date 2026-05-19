@@ -5,6 +5,10 @@ import type {
   MediaItem,
   LoginInput,
   RegisterInput,
+  ReactionEmoji,
+  UpdateProfileInput,
+  Notification,
+  FeedMode,
 } from "@/types";
 
 async function api<T>(
@@ -46,18 +50,23 @@ export const apiClient = {
   },
 
   posts: {
-    feed: (page: number, pageSize: number) =>
+    feed: (page: number, pageSize: number, mode: FeedMode = "foryou") =>
       api<{ posts: PostWithAuthor[] }>(
-        `/api/posts?page=${page}&pageSize=${pageSize}`
+        `/api/posts?page=${page}&pageSize=${pageSize}&mode=${mode}`
       ),
     byUser: (userId: string, page: number, pageSize: number) =>
       api<{ posts: PostWithAuthor[] }>(
         `/api/posts?userId=${userId}&page=${page}&pageSize=${pageSize}`
       ),
     get: (id: string) => api<{ post: PostWithAuthor }>(`/api/posts/${id}`),
-    create: (content: string, media: MediaItem[]) =>
+    create: (content: string, media: MediaItem[], pollOptions?: string[]) =>
       api<{ post: PostWithAuthor }>("/api/posts", {
         method: "POST",
+        body: JSON.stringify({ content, media, pollOptions }),
+      }),
+    update: (id: string, content: string, media?: MediaItem[]) =>
+      api<{ post: PostWithAuthor }>(`/api/posts/${id}`, {
+        method: "PATCH",
         body: JSON.stringify({ content, media }),
       }),
     like: (id: string) =>
@@ -66,6 +75,20 @@ export const apiClient = {
       }),
     repost: (id: string) =>
       api<{ post: PostWithAuthor }>(`/api/posts/${id}/repost`, {
+        method: "POST",
+      }),
+    react: (id: string, emoji: ReactionEmoji) =>
+      api<{ post: PostWithAuthor }>(`/api/posts/${id}/reactions`, {
+        method: "POST",
+        body: JSON.stringify({ emoji }),
+      }),
+    votePoll: (id: string, optionId: string) =>
+      api<{ post: PostWithAuthor }>(`/api/posts/${id}/poll`, {
+        method: "POST",
+        body: JSON.stringify({ optionId }),
+      }),
+    pin: (id: string) =>
+      api<{ post: PostWithAuthor }>(`/api/posts/${id}/pin`, {
         method: "POST",
       }),
   },
@@ -86,6 +109,14 @@ export const apiClient = {
     get: (username: string) =>
       api<{ user: User }>(`/api/users/${username}`),
     active: () => api<{ users: User[] }>("/api/users/active"),
+    me: () => api<{ user: User }>("/api/users/me"),
+    updateProfile: (input: UpdateProfileInput) =>
+      api<{ user: User }>("/api/users/me", {
+        method: "PATCH",
+        body: JSON.stringify(input),
+      }),
+    presence: () =>
+      api<{ ok: boolean }>("/api/users/presence", { method: "POST" }),
     follow: (userId: string) =>
       api<{ following: boolean; followersCount: number }>(
         `/api/follow/${userId}`,
@@ -93,6 +124,15 @@ export const apiClient = {
       ),
     isFollowing: (userId: string) =>
       api<{ following: boolean }>(`/api/follow/${userId}`),
+  },
+
+  notifications: {
+    list: () =>
+      api<{ notifications: Notification[]; unreadCount: number }>(
+        "/api/notifications"
+      ),
+    markRead: () =>
+      api<{ ok: boolean }>("/api/notifications", { method: "POST" }),
   },
 
   upload: async (file: File, type: "image" | "video" | "audio") => {
@@ -115,5 +155,4 @@ export const apiClient = {
       id: string;
     };
   },
-
 };

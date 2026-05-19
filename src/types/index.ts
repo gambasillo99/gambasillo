@@ -1,12 +1,21 @@
+export interface ProfileLink {
+  label: string;
+  url: string;
+}
+
 export interface User {
   id: string;
   username: string;
   displayName: string;
   bio: string;
   avatarUrl: string;
+  bannerUrl: string;
+  links: ProfileLink[];
   followersCount: number;
   followingCount: number;
   createdAt: string;
+  lastSeenAt?: string | null;
+  isOnline?: boolean;
 }
 
 export type MediaType = "image" | "video" | "audio";
@@ -18,6 +27,39 @@ export interface MediaItem {
   thumbnailUrl?: string;
 }
 
+export type ReactionEmoji = "fire" | "laugh" | "skull" | "heart";
+
+export const REACTION_EMOJIS: { key: ReactionEmoji; char: string }[] = [
+  { key: "fire", char: "🔥" },
+  { key: "laugh", char: "😂" },
+  { key: "skull", char: "💀" },
+  { key: "heart", char: "❤️" },
+];
+
+export interface ReactionCounts {
+  fire: number;
+  laugh: number;
+  skull: number;
+  heart: number;
+}
+
+export const EMPTY_REACTIONS: ReactionCounts = {
+  fire: 0,
+  laugh: 0,
+  skull: 0,
+  heart: 0,
+};
+
+export interface PollOption {
+  id: string;
+  text: string;
+  votes: number;
+}
+
+export interface Poll {
+  options: PollOption[];
+}
+
 export interface Post {
   id: string;
   userId: string;
@@ -27,8 +69,15 @@ export interface Post {
   repostsCount: number;
   commentsCount: number;
   createdAt: string;
+  updatedAt?: string | null;
+  isPinned: boolean;
+  pinnedAt?: string | null;
+  poll?: Poll | null;
+  reactions: ReactionCounts;
   likedByMe?: boolean;
   repostedByMe?: boolean;
+  myReaction?: ReactionEmoji | null;
+  myPollVoteOptionId?: string | null;
 }
 
 export interface Comment {
@@ -71,6 +120,26 @@ export interface CommentWithAuthor extends Omit<Comment, "replies"> {
   replies?: CommentWithAuthor[];
 }
 
+export type NotificationType =
+  | "follow"
+  | "like"
+  | "comment"
+  | "reaction"
+  | "mention";
+
+export interface Notification {
+  id: string;
+  userId: string;
+  actorId: string;
+  type: NotificationType;
+  postId?: string | null;
+  commentId?: string | null;
+  emoji?: string | null;
+  readAt?: string | null;
+  createdAt: string;
+  actor?: User;
+}
+
 export interface AuthUser {
   id: string;
   username: string;
@@ -85,4 +154,18 @@ export interface RegisterInput {
 export interface LoginInput {
   username: string;
   password: string;
+}
+
+export type FeedMode = "following" | "foryou" | "all";
+
+export interface UpdateProfileInput {
+  displayName?: string;
+  bio?: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  links?: ProfileLink[];
+}
+
+export interface CreatePollInput {
+  options: string[];
 }

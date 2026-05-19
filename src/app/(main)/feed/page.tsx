@@ -1,14 +1,17 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PostFeed } from "@/components/posts/PostFeed";
+import { FeedTabs } from "@/components/feed/FeedTabs";
 import { copy } from "@/lib/gambas-copy";
+import type { FeedMode } from "@/types";
 
 function FeedContent() {
   const searchParams = useSearchParams();
   const compose = searchParams.get("compose");
   const composerRef = useRef<HTMLDivElement>(null);
+  const [mode, setMode] = useState<FeedMode>("foryou");
 
   useEffect(() => {
     if (compose === "1" && composerRef.current) {
@@ -20,11 +23,14 @@ function FeedContent() {
 
   return (
     <div>
-      <header className="sticky top-0 z-10 backdrop-blur-xl bg-gambas-bg/80 border-b border-gambas-border/40 px-4 py-3">
-        <h1 className="text-lg font-bold">{copy.feed}</h1>
+      <header className="sticky top-0 z-10 backdrop-blur-xl bg-gambas-bg/80 border-b border-gambas-border/40">
+        <div className="px-4 py-3">
+          <h1 className="text-lg font-bold">{copy.feed}</h1>
+        </div>
+        <FeedTabs mode={mode} onChange={setMode} />
       </header>
       <div ref={composerRef}>
-        <PostFeed showComposer />
+        <PostFeed showComposer feedMode={mode} />
       </div>
     </div>
   );
@@ -35,7 +41,7 @@ export default function FeedPage() {
     <Suspense
       fallback={
         <div className="p-8 text-center text-gambas-muted animate-pulse-soft">
-          Cargando el gambasillín...
+          Cargando el visillo...
         </div>
       }
     >
