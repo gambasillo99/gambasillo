@@ -11,7 +11,11 @@ import type {
   Poll,
 } from "@/types";
 import { EMPTY_REACTIONS } from "@/types";
-import type { UserRow } from "@/lib/supabase/types";
+import type { Database, UserRow } from "@/lib/supabase/types";
+
+type PostUpdate = Database["public"]["Tables"]["posts"]["Update"];
+type PostInsert = Database["public"]["Tables"]["posts"]["Insert"];
+type UserUpdate = Database["public"]["Tables"]["users"]["Update"];
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   mapUser,
@@ -287,11 +291,11 @@ export async function supabaseUpdatePost(
 
   if (!existing || existing.user_id !== userId) return null;
 
-  const update: Record<string, unknown> = {
+  const update: PostUpdate = {
     content,
     updated_at: new Date().toISOString(),
+    ...(media !== undefined ? { media: serializeMedia(media) } : {}),
   };
-  if (media !== undefined) update.media = serializeMedia(media);
 
   const { data } = await supabase
     .from("posts")
@@ -312,14 +316,12 @@ export async function supabaseCreatePostWithPoll(
   media: MediaItem[] = [],
   pollOptions?: string[]
 ): Promise<PostWithAuthor> {
-  const insert: Record<string, unknown> = {
+  const insert: PostInsert = {
     user_id: userId,
     content,
     media: serializeMedia(media),
+    ...(pollOptions?.length ? { poll: buildPollForInsert(pollOptions) } : {}),
   };
-  if (pollOptions?.length) {
-    insert.poll = buildPollForInsert(pollOptions);
-  }
 
   const { data, error } = await db()
     .from("posts")
@@ -447,7 +449,7 @@ export async function supabaseUpdateProfile(
   userId: string,
   input: UpdateProfileInput
 ): Promise<User | null> {
-  const update: Record<string, unknown> = {};
+  const update: UserUpdate = {};
   if (input.displayName !== undefined) update.display_name = input.displayName;
   if (input.bio !== undefined) update.bio = input.bio;
   if (input.avatarUrl !== undefined) update.avatar_url = input.avatarUrl;

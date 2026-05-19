@@ -156,7 +156,7 @@ export async function loginUser(
 function enrichPost(post: Post, currentUserId?: string): PostWithAuthor {
   const likes = getLikes();
   const reposts = getReposts();
-  const base = attachSocialToPost(post, currentUserId, getUserById);
+  const base = attachSocialToPost(post, getUserById, currentUserId);
   return {
     ...base,
     likedByMe: currentUserId
@@ -174,7 +174,7 @@ export function getFeedPosts(
   currentUserId?: string,
   mode: FeedMode = "foryou"
 ): PostWithAuthor[] {
-  const filtered = filterFeedPosts(getPosts(), mode, currentUserId, getFollows);
+  const filtered = filterFeedPosts(getPosts(), mode, getFollows, currentUserId);
   const posts = filtered.slice(page * pageSize, (page + 1) * pageSize);
   return posts.map((p) => enrichPost(p, currentUserId));
 }
@@ -188,8 +188,8 @@ export function getUserPosts(
   const posts = filterFeedPosts(
     getPosts().filter((p) => p.userId === userId),
     "all",
-    currentUserId,
-    getFollows
+    getFollows,
+    currentUserId
   ).slice(page * pageSize, (page + 1) * pageSize);
   return posts.map((p) => enrichPost(p, currentUserId));
 }

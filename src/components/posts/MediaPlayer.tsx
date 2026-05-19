@@ -13,27 +13,8 @@ interface MediaPlayerProps {
 export function MediaPlayer({ media, compact }: MediaPlayerProps) {
   if (!media.length) return null;
 
-  return (
-    <motionGrid count={media.length}>
-      {media.map((item, i) => (
-        <MediaItemPlayer
-          key={item.id}
-          item={item}
-          compact={compact}
-          priority={i === 0}
-        />
-      ))}
-    </div>
-  );
-}
+  const count = media.length;
 
-function motionGrid({
-  count,
-  children,
-}: {
-  count: number;
-  children: React.ReactNode;
-}) {
   return (
     <div
       className={cn(
@@ -42,7 +23,14 @@ function motionGrid({
         count >= 2 && "grid-cols-2"
       )}
     >
-      {children}
+      {media.map((item, i) => (
+        <MediaItemPlayer
+          key={item.id}
+          item={item}
+          compact={compact}
+          priority={i === 0}
+        />
+      ))}
     </div>
   );
 }
@@ -60,12 +48,7 @@ function MediaItemPlayer({
 
   if (item.type === "image") {
     return (
-      <div
-        className={cn(
-          "relative overflow-hidden rounded-2xl border border-gambas-border/30",
-          maxH
-        )}
-      >
+      <ImageWrapper maxH={maxH}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={item.url}
@@ -74,7 +57,7 @@ function MediaItemPlayer({
           loading={priority ? "eager" : "lazy"}
           decoding="async"
         />
-      </div>
+      </ImageWrapper>
     );
   }
 
@@ -90,6 +73,25 @@ function MediaItemPlayer({
     <div className="col-span-full rounded-2xl border border-gambas-border/30 bg-gambas-surface p-8 flex flex-col items-center gap-2 text-gambas-muted">
       <ImageIcon className="w-8 h-8" />
       <span className="text-sm">Multimedia</span>
+    </div>
+  );
+}
+
+function ImageWrapper({
+  maxH,
+  children,
+}: {
+  maxH: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-gambas-border/30",
+        maxH
+      )}
+    >
+      {children}
     </div>
   );
 }
@@ -126,7 +128,12 @@ function VideoPlayer({
   }, []);
 
   return (
-    <motionVideoFrame maxH={maxH}>
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-gambas-border/30 bg-black group",
+        maxH
+      )}
+    >
       <video
         ref={ref}
         src={url}
@@ -148,38 +155,13 @@ function VideoPlayer({
           }
         }}
       />
-      <motionVideoOverlay playing={playing} />
-    </div>
-  );
-}
-
-function motionVideoFrame({
-  maxH,
-  children,
-}: {
-  maxH: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-2xl border border-gambas-border/30 bg-black group",
-        maxH
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
-function motionVideoOverlay({ playing }: { playing: boolean }) {
-  return (
-    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-      {playing ? (
-        <Pause className="w-12 h-12 text-white/90" />
-      ) : (
-        <Play className="w-12 h-12 text-white/90" />
-      )}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+        {playing ? (
+          <Pause className="w-12 h-12 text-white/90" />
+        ) : (
+          <Play className="w-12 h-12 text-white/90" />
+        )}
+      </div>
     </div>
   );
 }

@@ -82,8 +82,8 @@ export function savePollVotes(rows: PollVoteRow[]) {
 
 export function attachSocialToPost(
   post: Post,
-  currentUserId?: string,
-  getUserById: (id: string) => User | null
+  getUserById: (id: string) => User | null,
+  currentUserId?: string
 ): PostWithAuthor {
   const reactions = getReactions().filter((r) => r.postId === post.id);
   const counts: ReactionCounts = { ...EMPTY_REACTIONS };
@@ -159,8 +159,8 @@ export function buildPollFromOptions(texts: string[]): Poll {
 export function filterFeedPosts(
   posts: Post[],
   mode: FeedMode,
-  currentUserId?: string,
-  getFollows: () => { followerId: string; followingId: string }[]
+  getFollows: () => { followerId: string; followingId: string }[],
+  currentUserId?: string
 ): Post[] {
   const sorted = [...posts].sort((a, b) => {
     if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
