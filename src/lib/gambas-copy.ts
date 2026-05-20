@@ -81,4 +81,10 @@ export const copy = {
   colorGameEmptyLb: "Aún nadie ha jugado (o falta crear la tabla en Supabase).",
   colorGameLocalOnly:
     "Modo local: tus puntos solo se guardan en este navegador. Con Supabase activo hay ranking global.",
+  quizTitle: "Quiz de cultura general",
+  quiz4Options: "4 opciones",
+  quizSubmit: "Responder",
+  quizNext: "Siguiente pregunta",
+  quizCorrect: "Correcta",
+  quizWrong: "Fallaste",
 } as const;

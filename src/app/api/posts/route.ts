@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/session";
 import { isSupabaseConfigured } from "@/lib/config";
 import * as supabaseStore from "@/lib/data/supabase-store";
+import { maybeReplyAsAitana } from "@/lib/bots/aitana";
 import type { MediaItem } from "@/types";
 
 export async function GET(request: Request) {
@@ -71,6 +72,12 @@ export async function POST(request: Request) {
     media ?? [],
     pollOptions
   );
+
+  await maybeReplyAsAitana({
+    postId: post.id,
+    content,
+    authorUserId: userId,
+  }).catch(() => {});
 
   return NextResponse.json({ post });
 }

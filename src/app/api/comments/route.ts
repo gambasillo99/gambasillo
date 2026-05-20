@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/session";
 import { isSupabaseConfigured } from "@/lib/config";
 import * as supabaseStore from "@/lib/data/supabase-store";
+import { maybeReplyAsAitana } from "@/lib/bots/aitana";
 
 export async function GET(request: Request) {
   if (!isSupabaseConfigured()) {
@@ -38,6 +39,13 @@ export async function POST(request: Request) {
   if (!comment) {
     return NextResponse.json({ error: "No se pudo comentar" }, { status: 400 });
   }
+
+  await maybeReplyAsAitana({
+    postId,
+    content,
+    parentCommentId: comment.id,
+    authorUserId: userId,
+  }).catch(() => {});
 
   return NextResponse.json({ comment });
 }

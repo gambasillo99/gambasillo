@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ColorMemoryGame } from "@/components/color-game/ColorMemoryGame";
+import { TriviaQuizGame } from "@/components/trivia/TriviaQuizGame";
 import { copy } from "@/lib/gambas-copy";
 
 export default function ColorGamePage() {
@@ -17,8 +18,9 @@ export default function ColorGamePage() {
         </Link>
         <h1 className="text-lg font-bold truncate">{copy.colorGameTitle}</h1>
       </header>
-      <div className="p-4 max-w-2xl mx-auto">
+      <div className="p-4 max-w-2xl mx-auto space-y-6">
         <ColorMemoryGame />
+        <TriviaQuizGame />
       </div>
     </div>
   );
