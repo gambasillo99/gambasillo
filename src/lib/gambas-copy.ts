@@ -62,7 +62,7 @@ export const copy = {
   notifComment: "chirló en tu gamba",
   notifReaction: "reaccionó a tu gamba",
 
-  colorGameNav: "Color",
+  colorGameNav: "Minijuego",
   colorGameTitle: "Gamba-chroma",
   colorGameSubtitle:
     "Tienes 5 segundos para memorizar un color. Luego recréalo con R, G y B. Cuanto más cerca, más puntos (1 a 10).",
