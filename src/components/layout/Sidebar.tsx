@@ -8,6 +8,7 @@ import {
   Bell,
   LogOut,
   PenSquare,
+  Palette,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +19,7 @@ import { copy } from "@/lib/gambas-copy";
 
 const navItems = [
   { href: "/feed", label: copy.inicio, icon: Home },
+  { href: "/color-game", label: copy.colorGameNav, icon: Palette },
   { href: "/profile", label: "Perfil", icon: User, dynamic: true },
   { href: "/notifications", label: copy.notifications, icon: Bell },
 ];
@@ -41,6 +43,7 @@ export function Sidebar() {
           const active =
             pathname === href ||
             (item.href === "/feed" && pathname.startsWith("/feed")) ||
+            (item.href === "/color-game" && pathname.startsWith("/color-game")) ||
             (item.dynamic && pathname.startsWith("/profile"));
 
           return (

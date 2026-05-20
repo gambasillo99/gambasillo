@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, User, Bell, PenSquare } from "lucide-react";
+import { Home, User, Bell, PenSquare, Palette } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { cn } from "@/lib/utils";
 import { copy } from "@/lib/gambas-copy";
@@ -15,6 +15,7 @@ export function MobileNav() {
 
   const items = [
     { href: "/feed", icon: Home, label: copy.inicio },
+    { href: "/color-game", icon: Palette, label: copy.colorGameNav },
     { href: "/notifications", icon: Bell, label: "Alertas" },
     { href: "/feed?compose=1", icon: PenSquare, label: copy.gambear, accent: true },
     { href: `/profile/${user.username}`, icon: User, label: "Perfil" },
@@ -27,6 +28,7 @@ export function MobileNav() {
           const active =
             pathname === item.href ||
             (item.href === "/feed" && pathname.startsWith("/feed")) ||
+            (item.href === "/color-game" && pathname.startsWith("/color-game")) ||
             (item.label === "Perfil" && pathname.startsWith("/profile"));
 
           return (

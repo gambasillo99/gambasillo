@@ -9,6 +9,7 @@ const KEYS = {
   reactions: "gambasillo_reactions",
   notifications: "gambasillo_notifications",
   pollVotes: "gambasillo_poll_votes",
+  colorGameTotals: "gambasillo_color_game_totals",
 } as const;
 
 export function getItem<T>(key: string): T | null {

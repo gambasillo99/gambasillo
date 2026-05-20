@@ -61,4 +61,24 @@ export const copy = {
   notifLike: "te dio una gambita",
   notifComment: "chirló en tu gamba",
   notifReaction: "reaccionó a tu gamba",
+
+  colorGameNav: "Color",
+  colorGameTitle: "Gamba-chroma",
+  colorGameSubtitle:
+    "Tienes 5 segundos para memorizar un color. Luego recréalo con R, G y B. Cuanto más cerca, más puntos (1 a 10).",
+  colorGameMemorize: "Memoriza",
+  colorGameCountdown: "Quedan",
+  colorGameGuess: "Replica el color",
+  colorGamePreview: "Tu mezcla",
+  colorGameConfirm: "¡Confirmar!",
+  colorGameRound: "Esta ronda",
+  colorGamePoints: "puntos",
+  colorGameYourTotal: "Tu acumulado",
+  colorGameLeaderboard: "Clasificación Gambasillo",
+  colorGameRank: "#",
+  colorGamePlayer: "Gambero",
+  colorGameScore: "Puntos",
+  colorGameEmptyLb: "Aún nadie ha jugado (o falta crear la tabla en Supabase).",
+  colorGameLocalOnly:
+    "Modo local: tus puntos solo se guardan en este navegador. Con Supabase activo hay ranking global.",
 } as const;

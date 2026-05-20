@@ -277,6 +277,24 @@ export interface Database {
         };
         Relationships: [];
       };
+      color_game_scores: {
+        Row: {
+          user_id: string;
+          total_points: number;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          total_points?: number;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          total_points?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

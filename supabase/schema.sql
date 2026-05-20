@@ -1,6 +1,7 @@
 -- Gambasillo — Supabase PostgreSQL schema (base)
 -- Ejecutar en: Supabase Dashboard → SQL Editor
 -- Después ejecutar: supabase/migrations/002_social_features.sql
+-- Opcional: supabase/migrations/003_color_game.sql (minijuego + ranking)
 
 create table if not exists users (
   id uuid primary key default gen_random_uuid(),
