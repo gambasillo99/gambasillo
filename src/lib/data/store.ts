@@ -141,6 +141,17 @@ export async function updatePost(
   return local.updatePost(postId, userId, content, media);
 }
 
+export async function deletePost(
+  postId: string,
+  userId: string
+): Promise<boolean> {
+  if (isRemoteBackend()) {
+    const { ok } = await apiClient.posts.delete(postId);
+    return ok;
+  }
+  return local.deletePost(postId, userId);
+}
+
 export async function toggleLike(
   postId: string,
   userId: string

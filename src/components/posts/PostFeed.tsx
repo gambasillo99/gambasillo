@@ -36,6 +36,7 @@ export function PostFeed({
     votePostPoll,
     editPost,
     pinPost,
+    removePost,
   } = useFeedPosts(userId, user?.id, feedMode);
 
   const sentinelRef = useInfiniteScroll(
@@ -89,6 +90,7 @@ export function PostFeed({
               ? (id) => void pinPost(id)
               : undefined
           }
+          onDelete={(id) => void removePost(id)}
         />
       ))}
       {loading && initialized && (

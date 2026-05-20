@@ -162,6 +162,23 @@ export async function supabaseGetPostById(
   return post ?? null;
 }
 
+export async function supabaseDeletePost(
+  postId: string,
+  userId: string
+): Promise<boolean> {
+  const supabase = db();
+  const { data: existing } = await supabase
+    .from("posts")
+    .select("user_id")
+    .eq("id", postId)
+    .maybeSingle();
+
+  if (!existing || existing.user_id !== userId) return false;
+
+  const { error } = await supabase.from("posts").delete().eq("id", postId);
+  return !error;
+}
+
 export async function supabaseCreatePost(
   userId: string,
   content: string,

@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { PostCard } from "@/components/posts/PostCard";
 import { CommentThread } from "@/components/comments/CommentThread";
@@ -13,8 +14,17 @@ import {
   addComment,
   toggleLike,
   toggleRepost,
+  deletePost,
+  updatePost,
+  toggleReaction,
+  votePoll,
+  togglePin,
 } from "@/lib/data/store";
-import type { PostWithAuthor, CommentWithAuthor } from "@/types";
+import type {
+  PostWithAuthor,
+  CommentWithAuthor,
+  ReactionEmoji,
+} from "@/types";
 import { copy } from "@/lib/gambas-copy";
 
 export default function PostPage({
@@ -24,6 +34,7 @@ export default function PostPage({
 }) {
   const { id } = use(params);
   const { user } = useAuth();
+  const router = useRouter();
   const [post, setPost] = useState<PostWithAuthor | null>(null);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [commentText, setCommentText] = useState("");
@@ -53,6 +64,36 @@ export default function PostPage({
   const handleRepost = async () => {
     if (!user || !post) return;
     const updated = await toggleRepost(post.id, user.id);
+    if (updated) setPost(updated);
+  };
+
+  const handleDelete = async (postId: string) => {
+    if (!user) return;
+    const ok = await deletePost(postId, user.id);
+    if (ok) router.push("/feed");
+  };
+
+  const handleEdit = async (postId: string, content: string) => {
+    if (!user) return;
+    const updated = await updatePost(postId, user.id, content);
+    if (updated) setPost(updated);
+  };
+
+  const handleReact = async (postId: string, emoji: ReactionEmoji) => {
+    if (!user) return;
+    const updated = await toggleReaction(postId, user.id, emoji);
+    if (updated) setPost(updated);
+  };
+
+  const handleVotePoll = async (postId: string, optionId: string) => {
+    if (!user) return;
+    const updated = await votePoll(postId, user.id, optionId);
+    if (updated) setPost(updated);
+  };
+
+  const handlePin = async (postId: string) => {
+    if (!user) return;
+    const updated = await togglePin(postId, user.id);
     if (updated) setPost(updated);
   };
 
@@ -114,8 +155,14 @@ export default function PostPage({
 
       <PostCard
         post={post}
+        currentUserId={user?.id}
         onLike={() => void handleLike()}
         onRepost={() => void handleRepost()}
+        onReact={(pid, emoji) => void handleReact(pid, emoji)}
+        onVotePoll={(pid, opt) => void handleVotePoll(pid, opt)}
+        onEdit={(pid, content) => void handleEdit(pid, content)}
+        onPin={(pid) => void handlePin(pid)}
+        onDelete={(pid) => void handleDelete(pid)}
         showFull
       />
 

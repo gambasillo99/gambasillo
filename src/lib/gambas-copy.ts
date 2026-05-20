@@ -15,6 +15,8 @@ export const copy = {
   enviarChirla: "Enviar chirla",
   pinGamba: "Fijar en el visillo",
   unpinGamba: "Quitar del visillo",
+  deleteGamba: "Borrar gamba",
+  confirmDeleteGamba: "¿Seguro que quieres borrar esta gamba? Esto no se puede deshacer.",
 
   feed: "Visillo de Gambasillo",
   inicio: "Visillo de Gambasillo",

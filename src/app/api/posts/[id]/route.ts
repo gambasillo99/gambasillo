@@ -58,3 +58,25 @@ export async function PATCH(
 
   return NextResponse.json({ post });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  if (!isSupabaseConfigured()) {
+    return NextResponse.json({ error: "Supabase no configurado" }, { status: 503 });
+  }
+
+  const userId = await getSessionUserId();
+  if (!userId) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const ok = await supabaseStore.supabaseDeletePost(id, userId);
+  if (!ok) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
+  return NextResponse.json({ ok: true });
+}

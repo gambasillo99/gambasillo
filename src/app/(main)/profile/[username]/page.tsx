@@ -6,7 +6,7 @@ import { PostFeed } from "@/components/posts/PostFeed";
 import { getUserByUsername } from "@/lib/data/store";
 import type { User } from "@/types";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 
 export default function ProfilePage({
@@ -15,9 +15,11 @@ export default function ProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = use(params);
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, logout } = useAuth();
   const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const isOwnProfile = Boolean(currentUser && profile && currentUser.id === profile.id);
 
   useEffect(() => {
     async function load() {
@@ -52,19 +54,31 @@ export default function ProfilePage({
 
   return (
     <div>
-      <header className="sticky top-0 z-10 backdrop-blur-xl bg-gambas-bg/80 border-b border-gambas-border/40 px-4 py-3 flex items-center gap-4">
+      <header className="sticky top-0 z-10 backdrop-blur-xl bg-gambas-bg/80 border-b border-gambas-border/40 px-4 py-3 flex items-center gap-3">
         <Link
           href="/feed"
-          className="p-1.5 rounded-full hover:bg-gambas-card transition-colors lg:hidden"
+          className="p-1.5 rounded-full hover:bg-gambas-card transition-colors lg:hidden shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <div>
-          <h1 className="text-lg font-bold leading-tight">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg font-bold leading-tight truncate">
             {profile.displayName}
           </h1>
-          <p className="text-gambas-muted text-xs">@{profile.username}</p>
+          <p className="text-gambas-muted text-xs truncate">@{profile.username}</p>
         </div>
+        {isOwnProfile && (
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-red-400 hover:bg-red-400/10 border border-red-400/30 transition-colors"
+            aria-label="Cerrar sesión"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="sm:hidden">Salir</span>
+            <span className="hidden sm:inline">Cerrar sesión</span>
+          </button>
+        )}
       </header>
       <ProfileHeader
         profile={profile}

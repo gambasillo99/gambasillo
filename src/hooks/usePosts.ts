@@ -7,6 +7,7 @@ import {
   getUserPosts,
   createPost,
   updatePost,
+  deletePost,
   toggleLike,
   toggleRepost,
   toggleReaction,
@@ -119,6 +120,15 @@ export function useFeedPosts(
     [currentUserId, patchPost]
   );
 
+  const removePost = useCallback(
+    async (postId: string) => {
+      if (!currentUserId) return;
+      const ok = await deletePost(postId, currentUserId);
+      if (ok) setPosts((prev) => prev.filter((p) => p.id !== postId));
+    },
+    [currentUserId]
+  );
+
   return {
     posts,
     loading,
@@ -134,5 +144,6 @@ export function useFeedPosts(
     editPost,
     pinPost,
     updatePost: patchPost,
+    removePost,
   };
 }

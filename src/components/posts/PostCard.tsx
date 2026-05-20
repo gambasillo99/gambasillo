@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { Heart, MessageCircle, Repeat2, Pin, MoreHorizontal, Pencil } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Pin, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { PostWithAuthor, ReactionEmoji } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { MediaPlayer } from "./MediaPlayer";
@@ -24,6 +24,7 @@ interface PostCardProps {
   onVotePoll?: (postId: string, optionId: string) => void;
   onEdit?: (postId: string, content: string) => void;
   onPin?: (postId: string) => void;
+  onDelete?: (postId: string) => void;
   showFull?: boolean;
 }
 
@@ -36,6 +37,7 @@ export function PostCard({
   onVotePoll,
   onEdit,
   onPin,
+  onDelete,
   showFull,
 }: PostCardProps) {
   const [editing, setEditing] = useState(false);
@@ -134,6 +136,21 @@ export function PostCard({
                       >
                         <Pin className="w-4 h-4" />
                         {post.isPinned ? copy.unpinGamba : copy.pinGamba}
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-red-500/10 text-red-400 flex items-center gap-2"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          if (typeof window !== "undefined" && window.confirm(copy.confirmDeleteGamba)) {
+                            onDelete(post.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        {copy.deleteGamba}
                       </button>
                     )}
                   </div>

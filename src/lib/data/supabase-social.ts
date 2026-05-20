@@ -239,14 +239,10 @@ export async function supabaseGetForYouFeed(
   pageSize: number
 ): Promise<PostWithAuthor[]> {
   const supabase = db();
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const { data } = await supabase
     .from("posts")
     .select("*")
-    .gte("created_at", weekAgo)
-    .order("likes_count", { ascending: false })
-    .order("comments_count", { ascending: false })
     .order("created_at", { ascending: false })
     .range(page * pageSize, page * pageSize + pageSize - 1);
 

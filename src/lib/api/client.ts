@@ -69,6 +69,8 @@ export const apiClient = {
         method: "PATCH",
         body: JSON.stringify({ content, media }),
       }),
+    delete: (id: string) =>
+      api<{ ok: boolean }>(`/api/posts/${id}`, { method: "DELETE" }),
     like: (id: string) =>
       api<{ post: PostWithAuthor }>(`/api/posts/${id}/like`, {
         method: "POST",

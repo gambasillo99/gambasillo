@@ -439,6 +439,24 @@ export function updatePost(
   return enrichPost(updated, userId);
 }
 
+export function deletePost(postId: string, userId: string): boolean {
+  const posts = getPosts();
+  const post = posts.find((p) => p.id === postId);
+  if (!post || post.userId !== userId) return false;
+
+  savePosts(posts.filter((p) => p.id !== postId));
+  saveLikes(getLikes().filter((l) => l.postId !== postId));
+  saveReposts(getReposts().filter((r) => r.postId !== postId));
+  saveComments(getComments().filter((c) => c.postId !== postId));
+  saveReactions(getReactions().filter((r) => r.postId !== postId));
+  savePollVotes(getPollVotes().filter((v) => v.postId !== postId));
+
+  const notifRows = getNotificationsStore().filter((n) => n.postId !== postId);
+  saveNotificationsStore(notifRows);
+
+  return true;
+}
+
 export function toggleReaction(
   postId: string,
   userId: string,

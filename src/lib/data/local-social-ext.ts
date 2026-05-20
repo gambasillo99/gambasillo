@@ -177,13 +177,8 @@ export function filterFeedPosts(
   }
 
   if (mode === "foryou") {
-    return [...sorted].sort((a, b) => {
-      const scoreA =
-        a.likesCount * 2 + a.commentsCount * 3 + a.repostsCount * 2;
-      const scoreB =
-        b.likesCount * 2 + b.commentsCount * 3 + b.repostsCount * 2;
-      return scoreB - scoreA;
-    });
+    // Mismo orden cronológico que el resto: fijadas arriba, luego más nuevas primero
+    return sorted;
   }
 
   return sorted;
